@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iRoom - оформление заказа</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="checkout-page">
+    <header class="site-header checkout-header" id="top">
+      <div class="header-primary">
+        <a class="brand" href="index.html" aria-label="iRoom">
+          <img src="assets/iroom_logo.svg" alt="iRoom" />
+        </a>
+        <div class="header-actions">
+          <a href="mailto:iroomrussia@icloud.com">iroomrussia@icloud.com</a>
+          <a href="tel:+79390000439">+7 939 0000 439</a>
+          <button class="cart-link" type="button" data-cart-open data-cart-button>
+            <span>Корзина</span>
+            <span class="cart-count" data-cart-count>0</span>
+          </button>
+        </div>
+      </div>
+      <div class="promo-ticker" aria-label="Информация по акции">
+        <div class="promo-ticker-track">
+          <span>Пожалуйста, оформляйте заказы заранее и звоните за 2 часа до приезда, чтобы мы успели подготовить заказ к выдаче. Ждём вас в гости! По вопросам качества обслуживания или сотрудничества пишите напрямую директору в телеграм — @romanovich_95 или почту admin@iroom.su. Для быстрого оформления заказов пишите в телеграм @iroomstore. Наш сайт с техникой Apple — iroom.su</span>
+          <span aria-hidden="true">Пожалуйста, оформляйте заказы заранее и звоните за 2 часа до приезда, чтобы мы успели подготовить заказ к выдаче. Ждём вас в гости! По вопросам качества обслуживания или сотрудничества пишите напрямую директору в телеграм — @romanovich_95 или почту admin@iroom.su. Для быстрого оформления заказов пишите в телеграм @iroomstore. Наш сайт с техникой Apple — iroom.su</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="checkout-main">
+      <h1>Оформление заказа</h1>
+      <div class="checkout-grid">
+        <form
+          class="checkout-form"
+          action="/api/order"
+          method="POST"
+          data-checkout-form
+        >
+          <input type="hidden" name="order_details" value="" />
+          <input type="hidden" name="order_total" value="" />
+          <input type="hidden" name="action_promo_code" value="IROOM182JUNE532ACTION14" />
+
+          <div class="field-row">
+            <label class="line-field">
+              <input name="name" type="text" placeholder=" " required />
+              <span>Имя</span>
+            </label>
+            <label class="line-field">
+              <input name="phone" type="tel" inputmode="tel" placeholder=" " required data-phone-mask />
+              <span>+7</span>
+            </label>
+          </div>
+          <div class="field-row">
+            <label class="line-field">
+              <input name="email" type="email" placeholder=" " required />
+              <span>Email</span>
+            </label>
+            <label class="line-field">
+              <input name="telegram" type="text" placeholder=" " />
+              <span>Телеграм (если есть)</span>
+            </label>
+          </div>
+
+          <fieldset class="option-group">
+            <legend>Доставка</legend>
+            <label><input type="radio" name="delivery" value="Самовывоз" /> Самовывоз</label>
+            <label><input type="radio" name="delivery" value="По Республике Дагестан" checked /> По Республике Дагестан</label>
+            <label><input type="radio" name="delivery" value="По России" /> По России</label>
+          </fieldset>
+
+          <label class="line-field full">
+            <input name="city" type="text" placeholder=" " />
+            <span>Город</span>
+          </label>
+          <label class="line-field full">
+            <input name="address" type="text" placeholder=" " />
+            <span>Адрес доставки</span>
+          </label>
+          <label class="line-field full">
+            <input name="promo" type="text" placeholder=" " />
+            <span>Промокод</span>
+          </label>
+
+          <fieldset class="option-group">
+            <legend>Исламская рассрочка</legend>
+            <label><input type="radio" name="installment" value="Без рассрочки" checked /> Без рассрочки</label>
+            <label><input type="radio" name="installment" value="6 месяцев" /> На 6 месяцев <span>- 6 платежей</span></label>
+            <label><input type="radio" name="installment" value="12 месяцев" /> На 12 месяцев <span>- 12 платежей</span></label>
+            <label><input type="radio" name="installment" value="24 месяца" /> На 24 месяца <span>- 24 платежа</span></label>
+          </fieldset>
+
+          <div class="payment-note">
+            <strong>Сейчас оплата не требуется</strong>
+            <p>После оформления заказа мы вышлем вам ссылку для оплаты по Email и в телеграм, включая стоимость доставки.</p>
+          </div>
+
+          <button class="checkout-submit" type="submit">Оформить заказ</button>
+          <p class="legal-note">
+            Нажимая кнопку Оформить заказ вы соглашаетесь с условиями Политики конфиденциальности, а также даете
+            своё согласие на обработку персональных данных
+          </p>
+        </form>
+
+        <aside class="order-summary">
+          <ul data-order-summary></ul>
+          <div class="cart-total summary-total">
+            <span>Итого</span>
+            <strong data-order-total>0 ₽</strong>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer checkout-footer">
+      <strong>iRoom</strong>
+      <a href="index.html">Каталог</a>
+      <span>О нас</span>
+      <span>Контакты</span>
+      <span>Помощь</span>
+      <a href="#top" aria-label="Наверх">⌃</a>
+    </footer>
+
+    <aside class="cart-panel" data-cart-panel aria-hidden="true">
+      <div class="cart-card">
+        <div class="cart-scroll">
+          <div class="cart-head">
+            <h2>Корзина <span data-cart-count>0</span></h2>
+            <button type="button" data-cart-close>Закрыть</button>
+          </div>
+          <p class="cart-empty" data-cart-empty>Добавьте товары из витрины, чтобы перейти к оформлению заказа.</p>
+          <ul class="cart-list" data-cart-list></ul>
+          <div class="cart-total">
+            <span>Итого</span>
+            <strong data-cart-total>0 ₽</strong>
+          </div>
+        </div>
+        <div class="cart-footer">
+          <a class="cart-checkout" href="checkout.html" data-checkout-link>К оформлению</a>
+        </div>
+      </div>
+    </aside>
+
+    <script src="script.js"></script>
+  </body>
+</html>
