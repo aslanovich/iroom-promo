@@ -1,7 +1,7 @@
 const recipient = process.env.ORDER_RECIPIENT || "kerim.aslanovich@gmail.com";
 const promoCode = "IROOM182JUNE532ACTION14";
 
-const readBody = (request) =>
+const readRawBody = (request) =>
   new Promise((resolve, reject) => {
     let body = "";
     request.on("data", (chunk) => {
@@ -14,6 +14,19 @@ const readBody = (request) =>
     request.on("end", () => resolve(body));
     request.on("error", reject);
   });
+
+const parseFields = async (request) => {
+  if (request.body && typeof request.body === "object" && !Buffer.isBuffer(request.body)) {
+    return request.body;
+  }
+
+  if (typeof request.body === "string") {
+    return Object.fromEntries(new URLSearchParams(request.body).entries());
+  }
+
+  const rawBody = await readRawBody(request);
+  return Object.fromEntries(new URLSearchParams(rawBody).entries());
+};
 
 const buildOrderText = (fields) =>
   [
@@ -38,7 +51,7 @@ const buildOrderText = (fields) =>
 
 const sendWithResend = async (fields) => {
   if (!process.env.RESEND_API_KEY) {
-    throw new Error("RESEND_API_KEY is not configured");
+    throw new Error("В Vercel не задана переменная RESEND_API_KEY");
   }
 
   const text = buildOrderText(fields);
@@ -58,7 +71,7 @@ const sendWithResend = async (fields) => {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Resend error ${response.status}: ${errorText}`);
+    throw new Error(`Resend вернул ошибку ${response.status}: ${errorText}`);
   }
 };
 
@@ -70,8 +83,7 @@ module.exports = async (request, response) => {
   }
 
   try {
-    const params = new URLSearchParams(await readBody(request));
-    const fields = Object.fromEntries(params.entries());
+    const fields = await parseFields(request);
     await sendWithResend(fields);
     response.writeHead(303, { Location: "/success.html" });
     response.end();
