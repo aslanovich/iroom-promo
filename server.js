@@ -6,6 +6,7 @@ const { spawn } = require("child_process");
 const root = __dirname;
 const port = Number(process.env.PORT || 4173);
 const recipient = "kerim.aslanovich@gmail.com";
+const promoCode = "IROOM182JUNE532ACTION14";
 
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -28,35 +29,36 @@ const readBody = (request) =>
     request.on("error", reject);
   });
 
+const buildOrderText = (fields) =>
+  [
+    "Новый заказ iRoom",
+    "",
+    `Имя: ${fields.name || "-"}`,
+    `Телефон: ${fields.phone || "-"}`,
+    `Email: ${fields.email || "-"}`,
+    `Telegram: ${fields.telegram || "-"}`,
+    `Доставка: ${fields.delivery || "-"}`,
+    `Город: ${fields.city || "-"}`,
+    `Адрес: ${fields.address || "-"}`,
+    `Промокод клиента: ${fields.promo || "-"}`,
+    `Промокод акции: ${fields.action_promo_code || promoCode}`,
+    `Рассрочка: ${fields.installment || "-"}`,
+    "",
+    "Товары:",
+    fields.order_details || "-",
+    "",
+    `Итого: ${fields.order_total || "-"}`,
+  ].join("\n");
+
 const sendMail = (fields) =>
   new Promise((resolve, reject) => {
-    const text = [
-      "Новый заказ iRoom",
-      "",
-      `Имя: ${fields.name || "-"}`,
-      `Телефон: ${fields.phone || "-"}`,
-      `Email: ${fields.email || "-"}`,
-      `Telegram: ${fields.telegram || "-"}`,
-      `Доставка: ${fields.delivery || "-"}`,
-      `Город: ${fields.city || "-"}`,
-      `Адрес: ${fields.address || "-"}`,
-      `Промокод: ${fields.promo || "-"}`,
-      `Промокод акции: ${fields.action_promo_code || "IROOM182JUNE532ACTION14"}`,
-      `Рассрочка: ${fields.installment || "-"}`,
-      "",
-      "Товары:",
-      fields.order_details || "-",
-      "",
-      `Итого: ${fields.order_total || "-"}`,
-    ].join("\n");
-
     const message = [
       `To: ${recipient}`,
       "From: iroom-local@localhost",
       "Subject: Новый заказ iRoom",
       "Content-Type: text/plain; charset=UTF-8",
       "",
-      text,
+      buildOrderText(fields),
     ].join("\n");
 
     const sendmail = spawn("/usr/sbin/sendmail", ["-t"]);
