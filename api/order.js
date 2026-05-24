@@ -41,7 +41,6 @@ const buildOrderText = (fields) =>
     `Адрес: ${fields.address || "-"}`,
     `Промокод клиента: ${fields.promo || "-"}`,
     `Промокод акции: ${fields.action_promo_code || promoCode}`,
-    `Рассрочка: ${fields.installment || "-"}`,
     "",
     "Товары:",
     fields.order_details || "-",

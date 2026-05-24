@@ -16,34 +16,52 @@
         <a class="brand" href="#top" aria-label="iRoom">
           <img src="assets/iroom_logo.svg" alt="iRoom" />
         </a>
+        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
+          <span>Меню</span>
+          <i aria-hidden="true"></i>
+        </button>
+        <nav class="header-nav" aria-label="Категории товаров">
+          <a href="#iphone-17-pro" data-anchor-category="iphone">iPHONE</a>
+          <a href="#apple-watch" data-anchor-category="watch">WATCH</a>
+          <a href="#macbook" data-anchor-category="mac">MAC</a>
+          <a href="#iphone-air" data-anchor-category="iphone">VISION PRO <span>(NEW)</span></a>
+          <a href="#ipad" data-anchor-category="ipad">iPAD</a>
+          <a href="#airpods" data-anchor-category="airpods">НАУШНИКИ</a>
+        </nav>
         <div class="header-actions">
-          <a href="tel:+74955404900">+7 495 540 49 00</a>
+          <a href="mailto:iroomrussia@icloud.com">iroomrussia@icloud.com</a>
+          <a href="tel:+79390000439">+7 939 0000 439</a>
           <button class="cart-link" type="button" data-cart-open data-cart-button aria-label="Открыть корзину">
             <span>Корзина</span>
             <span class="cart-count" data-cart-count>0</span>
           </button>
         </div>
       </div>
-      <nav class="filter-bar" aria-label="Категории товаров">
-        <a class="filter-chip is-active" href="#top" data-anchor-category="all">Все</a>
-        <a class="filter-chip" href="#iphone-17-pro" data-anchor-category="iphone">iPhone</a>
-        <a class="filter-chip" href="#apple-watch" data-anchor-category="watch">Apple Watch</a>
-        <a class="filter-chip" href="#airpods" data-anchor-category="airpods">AirPods</a>
-        <a class="filter-chip" href="#macbook" data-anchor-category="mac">MacBook</a>
-        <a class="filter-chip" href="#ipad" data-anchor-category="ipad">iPad</a>
-      </nav>
       <div class="promo-ticker" aria-label="Информация по акции">
         <div class="promo-ticker-track">
           <span>Пожалуйста, оформляйте заказы заранее и звоните за 2 часа до приезда, чтобы мы успели подготовить заказ к выдаче. Ждём вас в гости! По вопросам качества обслуживания или сотрудничества пишите напрямую директору в телеграм — @romanovich_95 или почту admin@iroom.su. Для быстрого оформления заказов пишите в телеграм @iroomstore. Наш сайт с техникой Apple — iroom.su</span>
           <span aria-hidden="true">Пожалуйста, оформляйте заказы заранее и звоните за 2 часа до приезда, чтобы мы успели подготовить заказ к выдаче. Ждём вас в гости! По вопросам качества обслуживания или сотрудничества пишите напрямую директору в телеграм — @romanovich_95 или почту admin@iroom.su. Для быстрого оформления заказов пишите в телеграм @iroomstore. Наш сайт с техникой Apple — iroom.su</span>
         </div>
       </div>
+      <nav class="mobile-menu-panel" id="mobile-menu" aria-label="Мобильное меню">
+        <div class="mobile-menu-links">
+          <a href="#iphone-17-pro" data-menu-link>iPhone</a>
+          <a href="#apple-watch" data-menu-link>Watch</a>
+          <a href="#macbook" data-menu-link>Mac</a>
+          <a href="#iphone-air" data-menu-link>Vision Pro</a>
+          <a href="#ipad" data-menu-link>iPad</a>
+          <a href="#airpods" data-menu-link>Наушники</a>
+        </div>
+        <div class="mobile-menu-contacts">
+          <a href="tel:+79390000439">+7 939 0000 439</a>
+          <a href="mailto:iroomrussia@icloud.com">iroomrussia@icloud.com</a>
+        </div>
+      </nav>
     </header>
 
     <main>
       <section class="intro" aria-labelledby="intro-title">
         <div>
-          <p class="eyebrow">AJ.ru</p>
           <h1 id="intro-title">интернет-магазин техники Apple</h1>
         </div>
       </section>
@@ -243,6 +261,55 @@
       <a href="mailto:info@iroom.example">info@iroom.example</a>
       <a href="#top" aria-label="Наверх">↑</a>
     </footer>
+
+    <aside class="product-modal" data-product-modal aria-hidden="true">
+      <div class="product-modal-card">
+        <button class="close-pill product-modal-close" type="button" data-product-modal-close>Закрыть</button>
+        <div class="product-modal-scroll">
+          <div class="product-modal-title">
+            <h2 data-product-modal-title>iPhone 17 Pro</h2>
+            <span data-product-modal-memory>512 ГБ</span>
+          </div>
+          <div class="product-modal-hero">
+            <div class="product-modal-thumbs" data-product-modal-thumbs></div>
+            <img src="" alt="" data-product-modal-image />
+          </div>
+          <div class="product-modal-content">
+            <section class="product-modal-buy">
+              <strong data-product-modal-price>0 ₽</strong>
+              <small>125 490 ₽</small>
+              <button class="black-pill" type="button" data-product-modal-add>В корзину</button>
+              <button class="ghost-pill" type="button">Быстрая покупка</button>
+              <div class="product-options">
+                <h3>Память</h3>
+                <p><span>256 ГБ</span><span class="is-selected">512 ГБ</span><span>1 ТБ</span></p>
+              </div>
+              <div class="product-options">
+                <h3>Цвет</h3>
+                <div class="color-dots"><span style="background:#f06f35"></span><span style="background:#e9e5dc"></span><span style="background:#2f333d"></span><span style="background:#f2f2f2"></span></div>
+              </div>
+              <div class="product-options">
+                <h3>Связь</h3>
+                <p><span class="is-selected">dual-SIM</span><span>SIM + eSIM</span></p>
+              </div>
+            </section>
+            <section class="product-modal-details">
+              <h3>Описание</h3>
+              <p data-product-modal-description>Обновленная модель с мощным процессором, улучшенной камерой и стильным дизайном. Дисплей и звук обеспечивают впечатляющий мультимедийный опыт.</p>
+              <h3>Основные характеристики</h3>
+              <dl>
+                <div><dt>Серия</dt><dd data-product-modal-series>iPhone 17 Pro</dd></div>
+                <div><dt>Память</dt><dd>512 ГБ</dd></div>
+                <div><dt>Процессор</dt><dd>A18 Pro</dd></div>
+                <div><dt>Диагональ</dt><dd>6,7"</dd></div>
+                <div><dt>Камера</dt><dd>48 Мп + 12 Мп + 12 Мп</dd></div>
+                <div><dt>Связь</dt><dd>dual-SIM</dd></div>
+              </dl>
+            </section>
+          </div>
+        </div>
+      </div>
+    </aside>
 
     <aside class="cart-panel" data-cart-panel aria-hidden="true">
       <div class="cart-card">

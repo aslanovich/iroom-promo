@@ -83,7 +83,17 @@ const shakeCartButton = () => {
 
 const splitHeading = (heading) => {
   if (heading.dataset.splitReady === "true") return;
-  const text = heading.textContent.trim();
+  if (!heading.dataset.splitText) {
+    const suffixNode = heading.querySelector(".section-count, sup");
+    const clone = heading.cloneNode(true);
+    clone.querySelector(".section-count, sup")?.remove();
+    heading.dataset.splitText = clone.textContent.trim();
+    if (suffixNode?.textContent.trim()) {
+      heading.dataset.splitSuffix = suffixNode.textContent.trim();
+    }
+  }
+
+  const text = heading.dataset.splitText.trim();
   if (!text) return;
 
   const words = text.split(/\s+/);
@@ -117,6 +127,13 @@ const splitHeading = (heading) => {
     heading.append(outer);
   });
 
+  if (heading.dataset.splitSuffix) {
+    const suffix = document.createElement("span");
+    suffix.className = "section-count";
+    suffix.textContent = heading.dataset.splitSuffix;
+    heading.append(suffix);
+  }
+
   heading.dataset.splitReady = "true";
 };
 
@@ -129,7 +146,7 @@ const revealObserver = new IntersectionObserver(
       }
     });
   },
-  { threshold: 0.18, rootMargin: "0px 0px -8% 0px" },
+  { threshold: 0.04, rootMargin: "0px 0px 45% 0px" },
 );
 
 const setupMotion = () => {
@@ -211,11 +228,63 @@ const flyProductToCart = (button, onImpact) => {
   animation.finished.finally(() => clone.remove());
 };
 
+const addPayloadToCart = (payload) => {
+  const existing = cart.find((item) => item.id === payload.id);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ ...payload, qty: 1 });
+  }
+
+  saveCart();
+};
+
+const removePayloadFromCart = (id) => {
+  cart = cart.filter((item) => item.id !== id);
+  saveCart();
+};
+
+const addProductFromButton = (button) => {
+  const payload = getProductPayload(button);
+  addPayloadToCart(payload);
+  flyProductToCart(button, () => {
+    renderCart();
+    shakeCartButton();
+  });
+};
+
+const toggleProductFromButton = (button) => {
+  const payload = getProductPayload(button);
+  const isAdded = cart.some((item) => item.id === payload.id);
+
+  if (isAdded) {
+    removePayloadFromCart(payload.id);
+    renderCart();
+    return;
+  }
+
+  addPayloadToCart(payload);
+  updateAddButtons();
+  flyProductToCart(button, () => {
+    renderCart();
+    shakeCartButton();
+  });
+};
+
 const setCartOpen = (isOpen) => {
   const panel = document.querySelector("[data-cart-panel]");
   if (!panel) return;
+  if (isOpen) setMenuOpen(false);
   panel.classList.toggle("is-open", isOpen);
   panel.setAttribute("aria-hidden", String(!isOpen));
+  document.body.classList.toggle("is-cart-open", isOpen);
+};
+
+const setMenuOpen = (isOpen) => {
+  document.body.classList.toggle("is-menu-open", isOpen);
+  document.querySelector("[data-menu-toggle]")?.setAttribute("aria-expanded", String(isOpen));
+  if (isOpen) setCartOpen(false);
 };
 
 const renderLineItem = (item, mode = "cart") => `
@@ -312,6 +381,8 @@ const renderCart = () => {
   document.querySelectorAll("[data-order-total]").forEach((total) => {
     total.textContent = formatPrice(cartTotal());
   });
+
+  updateAddButtons();
 };
 
 const expandProductSections = (targetCount = 16) => {
@@ -331,8 +402,40 @@ const expandProductSections = (targetCount = 16) => {
 
 expandProductSections();
 
+const updateSectionCounts = () => {
+  document.querySelectorAll("[data-section]").forEach((section) => {
+    const heading = section.querySelector(".section-title h2");
+    if (!heading) return;
+    const count = section.querySelectorAll(".product-card").length;
+    const countNode = heading.querySelector(".section-count, sup") || document.createElement("sup");
+    countNode.className = "section-count";
+    countNode.textContent = String(count);
+    if (!countNode.parentElement) heading.append(countNode);
+    heading.dataset.splitSuffix = String(count);
+  });
+};
+
+const updateAddButtons = () => {
+  const addedIds = new Set(cart.map((item) => item.id));
+  document.querySelectorAll("[data-add]").forEach((button) => {
+    const isAdded = addedIds.has(button.dataset.add);
+    button.classList.toggle("is-added", isAdded);
+    button.textContent = isAdded ? "Добавлено" : "В корзину";
+  });
+};
+
+updateSectionCounts();
+
 document.querySelectorAll("[data-cart-open]").forEach((button) => {
   button.addEventListener("click", () => setCartOpen(true));
+});
+
+document.querySelector("[data-menu-toggle]")?.addEventListener("click", () => {
+  setMenuOpen(!document.body.classList.contains("is-menu-open"));
+});
+
+document.querySelectorAll("[data-menu-link]").forEach((link) => {
+  link.addEventListener("click", () => setMenuOpen(false));
 });
 
 document.querySelectorAll("[data-cart-close]").forEach((button) => {
@@ -344,22 +447,74 @@ document.querySelector("[data-cart-panel]")?.addEventListener("click", (event) =
 });
 
 document.querySelectorAll("[data-add]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const payload = getProductPayload(button);
-    const existing = cart.find((item) => item.id === payload.id);
-
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ ...payload, qty: 1 });
-    }
-
-    saveCart();
-    flyProductToCart(button, () => {
-      renderCart();
-      shakeCartButton();
-    });
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleProductFromButton(button);
   });
+});
+
+const productModal = document.querySelector("[data-product-modal]");
+let activeProductPayload = null;
+
+const setProductModalOpen = (isOpen) => {
+  if (!productModal) return;
+  productModal.classList.toggle("is-open", isOpen);
+  productModal.setAttribute("aria-hidden", String(!isOpen));
+  document.body.classList.toggle("is-modal-open", isOpen);
+};
+
+const openProductModal = (card) => {
+  if (!productModal) return;
+  const button = card.querySelector("[data-add]");
+  const image = card.querySelector("img");
+  const title = card.querySelector("h3")?.textContent.trim() || "iPhone";
+  const price = card.querySelector(".price-row strong")?.textContent.trim() || "0 ₽";
+  activeProductPayload = button ? getProductPayload(button) : null;
+
+  productModal.querySelector("[data-product-modal-title]").textContent = title.replace(/Apple\s*/i, "").replace(/,\s*.*/, "");
+  productModal.querySelector("[data-product-modal-series]").textContent = title.replace(/,\s*.*/, "");
+  productModal.querySelector("[data-product-modal-price]").textContent = price;
+  productModal.querySelector("[data-product-modal-description]").textContent =
+    `${title} - акционная модель из витрины iRoom. Подробные характеристики, варианты памяти и цвета можно уточнить у менеджера перед оформлением заказа.`;
+
+  const modalImage = productModal.querySelector("[data-product-modal-image]");
+  modalImage.src = image?.getAttribute("src") || "";
+  modalImage.alt = title;
+
+  const thumbs = productModal.querySelector("[data-product-modal-thumbs]");
+  thumbs.innerHTML = "";
+  [image?.getAttribute("src"), "assets/restore/iphone-1.jpg", "assets/restore/iphone-2.jpg"]
+    .filter(Boolean)
+    .forEach((src) => {
+      const thumb = document.createElement("img");
+      thumb.src = src;
+      thumb.alt = "";
+      thumb.addEventListener("click", () => {
+        modalImage.src = src;
+      });
+      thumbs.append(thumb);
+    });
+
+  setProductModalOpen(true);
+};
+
+document.querySelectorAll(".product-card").forEach((card) => {
+  card.addEventListener("click", () => openProductModal(card));
+});
+
+document.querySelector("[data-product-modal-add]")?.addEventListener("click", () => {
+  if (!activeProductPayload) return;
+  addPayloadToCart(activeProductPayload);
+  renderCart();
+  shakeCartButton();
+});
+
+document.querySelectorAll("[data-product-modal-close]").forEach((button) => {
+  button.addEventListener("click", () => setProductModalOpen(false));
+});
+
+productModal?.addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) setProductModalOpen(false);
 });
 
 const categoryLinks = Array.from(document.querySelectorAll("[data-anchor-category]"));
