@@ -95,6 +95,8 @@ const numberValue = (item: DirectusItem, keys: string[], fallback = 0) => {
   return fallback;
 };
 
+const slugFrom = (value: string) => value.toLowerCase().replace(/[^a-z0-9а-яё]+/gi, "-");
+
 const directusFetch = async <T,>(path: string, params?: Record<string, string>) => {
   if (!directusUrl) return null;
   const url = new URL(`${directusUrl}${path}`);
@@ -116,22 +118,24 @@ const firstItem = (item?: DirectusItem | DirectusItem[] | null) => Array.isArray
 
 const normalizeSettings = (rawItem?: DirectusItem | DirectusItem[] | null): SiteSettings => {
   const item = firstItem(rawItem);
-  return ({
-  ...fallbackSettings,
-  siteName: item ? stringValue(item, ["site_name", "siteName", "name"], fallbackSettings.siteName) : fallbackSettings.siteName,
-  title: item ? stringValue(item, ["title", "seo_title"], fallbackSettings.title) : fallbackSettings.title,
-  description: item ? stringValue(item, ["description", "seo_description"], fallbackSettings.description) : fallbackSettings.description,
-  keywords: item ? stringValue(item, ["keywords", "seo_keywords"], fallbackSettings.keywords) : fallbackSettings.keywords,
-  favicon: item ? assetUrl(item.favicon, fallbackSettings.favicon) : fallbackSettings.favicon,
-  logo: item ? assetUrl(item.logo, fallbackSettings.logo) : fallbackSettings.logo,
-  phone: item ? stringValue(item, ["phone", "contact_phone"], fallbackSettings.phone) : fallbackSettings.phone,
-  email: item ? stringValue(item, ["email", "contact_email"], fallbackSettings.email) : fallbackSettings.email,
-  telegram: item ? stringValue(item, ["telegram", "contact_telegram"], fallbackSettings.telegram) : fallbackSettings.telegram,
-  promoTicker: item ? stringValue(item, ["promo_ticker", "ticker_text"], fallbackSettings.promoTicker) : fallbackSettings.promoTicker,
-  promoCode: item ? stringValue(item, ["promo_code", "action_promo_code"], fallbackSettings.promoCode) : fallbackSettings.promoCode,
-  footerWorkHours: item ? stringValue(item, ["footer_work_hours", "work_hours"], fallbackSettings.footerWorkHours) : fallbackSettings.footerWorkHours,
-  footerCopyright: item ? stringValue(item, ["footer_copyright", "copyright"], fallbackSettings.footerCopyright) : fallbackSettings.footerCopyright,
-  });
+  if (!item) return fallbackSettings;
+
+  return {
+    ...fallbackSettings,
+    siteName: stringValue(item, ["site_name", "siteName", "name"], fallbackSettings.siteName),
+    title: stringValue(item, ["title", "seo_title"], fallbackSettings.title),
+    description: stringValue(item, ["description", "seo_description"], fallbackSettings.description),
+    keywords: stringValue(item, ["keywords", "seo_keywords"], fallbackSettings.keywords),
+    favicon: assetUrl(item.favicon, fallbackSettings.favicon),
+    logo: assetUrl(item.logo, fallbackSettings.logo),
+    phone: stringValue(item, ["phone", "contact_phone"], fallbackSettings.phone),
+    email: stringValue(item, ["email", "contact_email"], fallbackSettings.email),
+    telegram: stringValue(item, ["telegram", "contact_telegram"], fallbackSettings.telegram),
+    promoTicker: stringValue(item, ["promo_ticker", "ticker_text"], fallbackSettings.promoTicker),
+    promoCode: stringValue(item, ["promo_code", "action_promo_code"], fallbackSettings.promoCode),
+    footerWorkHours: stringValue(item, ["footer_work_hours", "work_hours"], fallbackSettings.footerWorkHours),
+    footerCopyright: stringValue(item, ["footer_copyright", "copyright"], fallbackSettings.footerCopyright),
+  };
 };
 
 const normalizePromoBanner = (item?: DirectusItem | null): PromoBannerContent => ({
@@ -156,13 +160,27 @@ const normalizeSection = (item: DirectusItem): Omit<ProductSection, "products"> 
   };
 };
 
+const normalizeSpecs = (item: DirectusItem) => {
+  const rawSpecs = item.specs || item.characteristics;
+  if (!Array.isArray(rawSpecs)) return [];
+
+  return (rawSpecs as DirectusItem[])
+    .map((spec) => ({
+      label: stringValue(spec, ["label", "name", "title"], ""),
+      value: stringValue(spec, ["value", "text"], ""),
+    }))
+    .filter((spec) => spec.label || spec.value);
+};
+
 const normalizeProduct = (item: DirectusItem): Product & { sectionId: string; sort: number } => {
   const sectionValue = item.section || item.category;
   const sectionId = typeof sectionValue === "object" && sectionValue
     ? stringValue(sectionValue as DirectusItem, ["slug", "id"], "iphone-17-pro")
     : String(sectionValue || "iphone-17-pro");
+  const fallbackId = slugFrom(stringValue(item, ["name", "title"], "product"));
+
   return {
-    id: stringValue(item, ["slug", "id"], stringValue(item, ["name", "title"], "product").toLowerCase().replace(/[^a-z0-9а-яё]+/gi, "-")),
+    id: stringValue(item, ["slug", "id"], fallbackId),
     category: sectionId as Product["category"],
     name: stringValue(item, ["title", "name"], "iPhone"),
     description: stringValue(item, ["short_description", "description"], ""),
@@ -175,12 +193,7 @@ const normalizeProduct = (item: DirectusItem): Product & { sectionId: string; so
     basePrice: numberValue(item, ["base_price", "old_price"], 0),
     detailsDescription: stringValue(item, ["details_description", "long_description", "description_text"], ""),
     descriptionImage: assetUrl(item.description_image || item.description_media, ""),
-    specs: Array.isArray(item.specs || item.characteristics)
-      ? ((item.specs || item.characteristics) as DirectusItem[]).map((spec) => ({
-          label: stringValue(spec, ["label", "name", "title"], ""),
-          value: stringValue(spec, ["value", "text"], ""),
-        })).filter((spec) => spec.label || spec.value)
-      : [],
+    specs: normalizeSpecs(item),
     sectionId,
     sort: numberValue(item, ["sort", "order"], 500),
   };

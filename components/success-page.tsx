@@ -8,6 +8,7 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { Footer } from "@/components/footer";
 import { useCart } from "@/components/cart-context";
 import { Header } from "@/components/header";
+import { useBodyState } from "@/components/use-body-state";
 
 export function SuccessPage({ content }: { content?: CmsContent }) {
   const { clear } = useCart();
@@ -19,14 +20,7 @@ export function SuccessPage({ content }: { content?: CmsContent }) {
     clear();
   }, [clear]);
 
-  useEffect(() => {
-    document.body.classList.add("success-page");
-    document.body.classList.toggle("is-cart-open", isCartOpen);
-    document.body.classList.toggle("is-menu-open", isMenuOpen);
-    return () => {
-      document.body.classList.remove("success-page", "is-cart-open", "is-menu-open");
-    };
-  }, [isCartOpen, isMenuOpen]);
+  useBodyState({ pageClass: "success-page", isCartOpen, isMenuOpen });
 
   return (
     <>

@@ -2,18 +2,28 @@ import { NextResponse } from "next/server";
 import { promoCode } from "@/data/catalog";
 import { getOrderRecipientEmail } from "@/lib/cms";
 
-const buildOrderText = (fields: Record<string, string>) =>
-  [
+type OrderFields = Record<string, string>;
+
+const orderFieldLabels: Array<[keyof OrderFields, string]> = [
+  ["name", "Имя"],
+  ["phone", "Телефон"],
+  ["email", "Email"],
+  ["telegram", "Telegram"],
+  ["delivery", "Доставка"],
+  ["city", "Город"],
+  ["address", "Адрес"],
+  ["promo", "Промокод клиента"],
+];
+
+const fieldLine = (fields: OrderFields, key: keyof OrderFields, label: string) => `${label}: ${fields[key] || "-"}`;
+
+const buildOrderText = (fields: OrderFields) => {
+  const customerLines = orderFieldLabels.map(([key, label]) => fieldLine(fields, key, label));
+
+  return [
     "Новый заказ iRoom",
     "",
-    `Имя: ${fields.name || "-"}`,
-    `Телефон: ${fields.phone || "-"}`,
-    `Email: ${fields.email || "-"}`,
-    `Telegram: ${fields.telegram || "-"}`,
-    `Доставка: ${fields.delivery || "-"}`,
-    `Город: ${fields.city || "-"}`,
-    `Адрес: ${fields.address || "-"}`,
-    `Промокод клиента: ${fields.promo || "-"}`,
+    ...customerLines,
     `Промокод акции: ${fields.action_promo_code || promoCode}`,
     "",
     "Товары:",
@@ -21,8 +31,9 @@ const buildOrderText = (fields: Record<string, string>) =>
     "",
     `Итого: ${fields.order_total || "-"}`,
   ].join("\n");
+};
 
-const sendWithResend = async (fields: Record<string, string>) => {
+const sendWithResend = async (fields: OrderFields) => {
   if (!process.env.RESEND_API_KEY) {
     throw new Error("В Vercel не задана переменная RESEND_API_KEY");
   }

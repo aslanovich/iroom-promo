@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { promoCode, type Product } from "@/data/catalog";
 import type { CmsContent } from "@/lib/cms";
@@ -9,6 +9,7 @@ import { formatPrice, useCart } from "@/components/cart-context";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ProductModal } from "@/components/storefront";
+import { useBodyState } from "@/components/use-body-state";
 
 export function CheckoutPage({ content }: { content?: CmsContent }) {
   const { items, total } = useCart();
@@ -21,15 +22,7 @@ export function CheckoutPage({ content }: { content?: CmsContent }) {
     [items],
   );
 
-  useEffect(() => {
-    document.body.classList.add("checkout-page");
-    document.body.classList.toggle("is-cart-open", isCartOpen);
-    document.body.classList.toggle("is-menu-open", isMenuOpen);
-    document.body.classList.toggle("is-modal-open", Boolean(activeProduct));
-    return () => {
-      document.body.classList.remove("checkout-page", "is-cart-open", "is-menu-open", "is-modal-open");
-    };
-  }, [activeProduct, isCartOpen, isMenuOpen]);
+  useBodyState({ pageClass: "checkout-page", isCartOpen, isMenuOpen, isModalOpen: Boolean(activeProduct) });
 
   const handlePhone = (event: React.ChangeEvent<HTMLInputElement>) => {
     const digits = event.target.value.replace(/\D/g, "").replace(/^8/, "7").slice(0, 11);

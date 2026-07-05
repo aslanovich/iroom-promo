@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { CartProvider } from "@/components/cart-context";
 import { getCmsContent } from "@/lib/cms";
 import "./globals.css";
@@ -12,6 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: settings.favicon ? { icon: settings.favicon } : undefined,
   };
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

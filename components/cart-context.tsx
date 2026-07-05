@@ -21,13 +21,15 @@ type CartContextValue = {
 
 const CART_KEY = "iroom_cart";
 const CartContext = createContext<CartContextValue | null>(null);
+const priceFormatter = new Intl.NumberFormat("ru-RU");
 
-export const formatPrice = (value: number) => `${new Intl.NumberFormat("ru-RU").format(value)} ₽`;
+export const formatPrice = (value: number) => `${priceFormatter.format(value)} ₽`;
 
 const readInitialCart = (): CartItem[] => {
   if (typeof window === "undefined") return [];
   try {
-    return JSON.parse(window.localStorage.getItem(CART_KEY) || "[]");
+    const parsed = JSON.parse(window.localStorage.getItem(CART_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }

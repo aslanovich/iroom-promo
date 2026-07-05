@@ -11,6 +11,7 @@ export type Product = {
   colorName?: string;
   colorHex?: string;
   memory?: string;
+  connection?: string;
   basePrice?: number;
   detailsDescription?: string;
   descriptionImage?: string;

@@ -33,19 +33,19 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                     <small>{item.description}</small>
                     <div className="qty-control" aria-label={`Количество ${item.name}`}>
                       <button type="button" onClick={() => changeQty(item.id, -1)}>
-                        -
+                        <img src="/assets/counter-minus.svg" alt="" />
                       </button>
                       <span>{item.qty}</span>
                       <button type="button" onClick={() => changeQty(item.id, 1)}>
-                        +
+                        <img src="/assets/counter-plus.svg" alt="" />
                       </button>
                     </div>
                   </div>
                 </div>
                 <div className="cart-item-side">
                   <strong>{formatPrice(item.price * item.qty)}</strong>
-                  <button type="button" onClick={() => remove(item.id)}>
-                    Удалить
+                  <button className="cart-remove-button" type="button" aria-label={`Удалить ${item.name}`} onClick={() => remove(item.id)}>
+                    <img src="/assets/item-delete.svg" alt="" />
                   </button>
                 </div>
               </li>

@@ -1,27 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { useBodyState } from "@/components/use-body-state";
+import type { CmsContent } from "@/lib/cms";
 
-export function PrivacyPage() {
+export function PrivacyPage({ content }: { content?: CmsContent }) {
   const [isCartOpen, setCartOpen] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    document.body.classList.add("privacy-page");
-    document.body.classList.toggle("is-cart-open", isCartOpen);
-    document.body.classList.toggle("is-menu-open", isMenuOpen);
-    return () => {
-      document.body.classList.remove("privacy-page", "is-cart-open", "is-menu-open");
-    };
-  }, [isCartOpen, isMenuOpen]);
+  useBodyState({ pageClass: "privacy-page", isCartOpen, isMenuOpen });
 
   return (
     <>
       <Header
         withCategories={false}
+        sections={content?.sections}
+        settings={content?.settings}
         isMenuOpen={isMenuOpen}
         onCartOpen={() => setCartOpen(true)}
         onMenuClose={() => setMenuOpen(false)}
@@ -38,7 +35,7 @@ export function PrivacyPage() {
           доставки, оплаты и клиентской поддержки. Полный юридический текст будет добавлен перед публичным запуском.
         </p>
       </main>
-      <Footer />
+      <Footer settings={content?.settings} />
       <CartDrawer isOpen={isCartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
